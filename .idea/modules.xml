@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/MethodTimeCost.iml" filepath="$PROJECT_DIR$/MethodTimeCost.iml" />
+      <module fileurl="file://$PROJECT_DIR$/lib-test1/lib-test.iml" filepath="$PROJECT_DIR$/lib-test1/lib-test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/lib-test1/lib-test1.iml" filepath="$PROJECT_DIR$/lib-test1/lib-test1.iml" />
+      <module fileurl="file://$PROJECT_DIR$/plugin/plugin.iml" filepath="$PROJECT_DIR$/plugin/plugin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/sample/sample.iml" filepath="$PROJECT_DIR$/sample/sample.iml" />
+    </modules>
+  </component>
+</project>

@@ -1,0 +1,97 @@
+apply plugin: 'com.android.application'
+
+// apply plugin 'com.xiaobo.method_time_cost' only under debug mode.
+project.gradle.startParameter.getTaskNames().each { String task ->
+    println("task in start parameters >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " + task)
+
+    def index = task.lastIndexOf(':')
+    if (-1 != index) {
+        task = task.substring(index + 1)
+    }
+    if (task.startsWith("assemble") && task.endsWith("Debug")) {
+        println("apply plugin >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> com.xiaobo.method_time_cost")
+
+        apply plugin: 'com.xiaobo.method_time_cost'
+        method_time_cost {
+            enable = true           // optional, default is true.
+            costBiggerThan = 20     // optional, default is 0. ==> show log of methods cost time >= 0
+            tag = "xiaobo"          // optional, default is MethodTimeCost
+        }
+    }
+}
+
+// show how much time each task costs.
+project.gradle.addListener(new BuildTimeListener())
+
+public class BuildTimeListener implements TaskExecutionListener, BuildListener {
+
+    private Clock clock
+    private times = new HashMap<Integer, Object>()
+
+    @Override
+    void beforeExecute(Task task) {
+        clock = new org.gradle.util.Clock()
+        println "TaskStart ==>> " + task.name
+    }
+
+    @Override
+    void afterExecute(Task task, TaskState taskState) {
+        def ms = clock.timeInMs
+        times.put(ms, task.path)
+        println "TaskEnd   ==>> " + task.name
+        println "UseTimes  ==>> " + ms
+        println "===================================================="
+    }
+
+    @Override
+    void buildFinished(BuildResult result) {
+        println "TimesDetails:"
+        def treeMap = new TreeMap(times)
+        for (time in treeMap) {
+            if (time.key >= 50) {
+                printf "%7sms  %s\n", time.key, time.value
+            }
+        }
+    }
+
+    @Override
+    void buildStarted(Gradle gradle) {}
+
+    @Override
+    void projectsEvaluated(Gradle gradle) {}
+
+    @Override
+    void projectsLoaded(Gradle gradle) {}
+
+    @Override
+    void settingsEvaluated(Settings settings) {}
+
+}
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "26.0.0"
+
+    defaultConfig {
+        applicationId "com.xiaobo.example.sample"
+        minSdkVersion 14
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+
+    compile project(':lib-test1')
+}
