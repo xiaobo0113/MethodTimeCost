@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/MethodTimeCost.iml" filepath="$PROJECT_DIR$/MethodTimeCost.iml" />
+      <module fileurl="file://$PROJECT_DIR$/buildSrc/buildSrc.iml" filepath="$PROJECT_DIR$/buildSrc/buildSrc.iml" />
       <module fileurl="file://$PROJECT_DIR$/lib-test1/lib-test.iml" filepath="$PROJECT_DIR$/lib-test1/lib-test.iml" />
       <module fileurl="file://$PROJECT_DIR$/lib-test1/lib-test1.iml" filepath="$PROJECT_DIR$/lib-test1/lib-test1.iml" />
       <module fileurl="file://$PROJECT_DIR$/plugin/plugin.iml" filepath="$PROJECT_DIR$/plugin/plugin.iml" />

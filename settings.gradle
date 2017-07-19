@@ -1,1 +1,1 @@
-include ':plugin', ':sample', ':lib-test1'
+include ':plugin', ':sample', ':lib-test1', ':buildSrc'
