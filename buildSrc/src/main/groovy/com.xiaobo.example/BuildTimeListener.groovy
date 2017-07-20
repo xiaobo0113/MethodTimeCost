@@ -12,7 +12,7 @@ import org.gradle.util.Clock
 class BuildTimeListener implements TaskExecutionListener, BuildListener {
 
     private Clock clock
-    private times = new HashMap<Integer, Object>()
+    private times = []
     def THRESHOLD = 50
 
     @Override
@@ -25,7 +25,7 @@ class BuildTimeListener implements TaskExecutionListener, BuildListener {
     void afterExecute(Task task, TaskState taskState) {
         def ms = clock.timeInMs
         if (ms > THRESHOLD) {
-            times << [(ms): task.path]
+            times << [(ms), task.path]
         }
         println "TaskEnd   ==>> " + task.name
         println "UseTimes  ==>> " + ms
@@ -35,9 +35,9 @@ class BuildTimeListener implements TaskExecutionListener, BuildListener {
     @Override
     void buildFinished(BuildResult result) {
         println "TimesDetails:"
-        def treeMap = new TreeMap(times)
-        for (time in treeMap) {
-            printf "%7sms  %s\n", time.key, time.value
+        times.sort { it[0] }
+        for (time in times) {
+            printf "%7sms  %s\n", time[0], time[1]
         }
     }
 
