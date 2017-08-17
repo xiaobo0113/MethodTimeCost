@@ -1,0 +1,32 @@
+apply plugin: 'groovy'
+apply plugin: 'maven'
+
+if (file('upload.gradle').exists()) {
+    apply from: 'upload.gradle'
+}
+
+if (file('bintray.gradle').exists()) {
+    apply from: 'bintray.gradle'
+}
+
+dependencies {
+    repositories {
+        mavenLocal()
+        jcenter()
+    }
+
+    compile gradleApi()
+    compile localGroovy()
+
+    compile 'com.android.tools.build:gradle:2.3.3'
+    compile 'org.javassist:javassist:3.20.0-GA'
+}
+
+repositories {
+    mavenCentral()
+}
+
+targetCompatibility = '1.7'
+sourceCompatibility = '1.7'
+
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
