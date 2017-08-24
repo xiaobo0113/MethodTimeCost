@@ -23,21 +23,26 @@ The other one is apply the plugin in the build.gradle of your `application modul
 
 ## How it works
 
-    public int add (int a, int b) {
-        int result = a + b;         // imagine this is line 3
-        return result;
+    class Test {
+        public int add (int a, int b) {
+            int result = a + b; // imagine this is line 3
+            return result;
+        }
     }
 
 will change into
 
-    public int add (int a, int b) {
-        TimeUtil.push();            // now this is line 3
-        int result = a + b;         // changed to line 4
-        TimeUtil.pop();
-        return result;
+    class Test {
+        static LinkedList<Long> __time_list = new LinkedList<Long>();
+        public int add (int a, int b) {
+            __time_list.push(System.currentTimeMillis());   // now this is line 3
+            int result = a + b;                             // changed to line 4
+            Lod.d(TAG, "" + System.currentTimeMillis() - __time_list.pop());
+            return result;
+        }
     }
 
-where `pop` time minus `push` time is the time 'add' costs. The code is inserted by Java Assist.
+The code is inserted by Java Assist.
 
 ## Suggestion
 Just use the plugin under debug mode. For it changed the byte code of your classes, which results in a wrong `line number` if you want to locate a right line number from stacktrace when you get an exception.
