@@ -5,7 +5,6 @@ import com.android.build.gradle.AppExtension
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.internal.pipeline.TransformManager
-import com.google.common.collect.Sets
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
@@ -44,14 +43,14 @@ class JavaAssistTransform extends Transform {
         // 作用范围：这里我们只处理工程中编写的类
         // return [QualifiedContent.Scope.PROJECT]
 
-        // return TransformManager.SCOPE_FULL_PROJECT
-        return Sets.immutableEnumSet(
-                QualifiedContent.Scope.PROJECT,
-                // QualifiedContent.Scope.PROJECT_LOCAL_DEPS,
-                QualifiedContent.Scope.SUB_PROJECTS,
-                // QualifiedContent.Scope.SUB_PROJECTS_LOCAL_DEPS,
-                // QualifiedContent.Scope.EXTERNAL_LIBRARIES,
-        )
+        return TransformManager.SCOPE_FULL_PROJECT
+//        return com.google.common.collect.Sets.immutableEnumSet(
+//                QualifiedContent.Scope.PROJECT,
+//                QualifiedContent.Scope.PROJECT_LOCAL_DEPS,
+//                QualifiedContent.Scope.SUB_PROJECTS,
+//                QualifiedContent.Scope.SUB_PROJECTS_LOCAL_DEPS,
+//                // QualifiedContent.Scope.EXTERNAL_LIBRARIES,
+//        )
     }
 
     @Override
@@ -78,13 +77,23 @@ class JavaAssistTransform extends Transform {
         outDirDir.deleteDir()
         outDirDir.mkdirs()
 
-        appendClassPath()
-        releaseTimeUtilClass()
         MyInject.setAppProject(getAppProject())
+        appendBasicClassPath()
+        releaseTimeUtilClass()
+
+        // 提前把所有文件加入路径中
+        invocation.inputs.each {
+            it.directoryInputs.each { DirectoryInput dir ->
+                MyInject.appendClassPath(dir.file.absolutePath)
+            }
+            it.jarInputs.each { JarInput jar ->
+                MyInject.appendClassPath(jar.file.absolutePath)
+            }
+        }
+
         invocation.inputs.each {
             // directoryInputs 就是 class 文件所在的目录：
             it.directoryInputs.each { DirectoryInput dir ->
-
                 // 1. 先把修改后的文件写回原目录，再把原目录拷贝到目的目录
                 // MyInject.injectDir(dir.file.absolutePath)
                 // FileUtils.copyDirectory(dir.file, outDirDir)
@@ -100,12 +109,16 @@ class JavaAssistTransform extends Transform {
 
             // 如果需要处理 jar 文件，那么也要对 it.jarInputs 进行处理：
             it.jarInputs.each { JarInput jar ->
-
                 // 同上，采用方案 2
                 String md5Path = DigestUtils.md5Hex(jar.file.absolutePath)
                 String outName = jar.file.name.substring(0, jar.file.name.length() - '.jar'.length()) + "_${md5Path}"
                 File outFile = outputProvider.getContentLocation(outName, outputTypes, scopes, Format.JAR)
                 FileUtils.copyFile(jar.file, outFile)
+
+                // 只处理本工程相关 module 的代码，不处理所依赖的代码，否则编译过程真的会很慢很慢！！
+                if (!jar.file.absolutePath.startsWith(mProject.rootDir.absolutePath)) {
+                    return
+                }
 
                 if (!ignore) {
                     println "\n>>>>>>>>>>>>> processing jar ${jar.file} begin >>>>>>>>>>>>>"
@@ -125,13 +138,11 @@ class JavaAssistTransform extends Transform {
         return null
     }
 
-    private void appendClassPath() {
+    private void appendBasicClassPath() {
         // 添加 android.jar 否则会提示找不到 android.util.Log 等类似的错误！！！
-        AndroidJarPathUtil.insertAndroidJarPath(mProject)
-        // 添加 android-support-v7-appcompat.jar
-        AndroidJarPathUtil.insertOtherJarPath(mProject)
+        AndroidJarPathUtil.appendAndroidJarPath(mProject)
         /** 添加 {@link com.xiaobo.example.java_assist.TimeUtil} */
-        AndroidJarPathUtil.insertTimeUtilPath(mProject)
+        AndroidJarPathUtil.appendTimeUtilPath(mProject)
     }
 
     private void releaseTimeUtilClass() {

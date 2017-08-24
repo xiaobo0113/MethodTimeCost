@@ -35,7 +35,7 @@ class AndroidJarPathUtil {
         return "android-23";
     }
 
-    static void insertAndroidJarPath(Project project) throws IOException {
+    static void appendAndroidJarPath(Project project) throws IOException {
         String sdkPath = getSDKPath(project)
         println ":::: sdkPath: $sdkPath"
 
@@ -46,22 +46,7 @@ class AndroidJarPathUtil {
         MyInject.appendClassPath(fullAndroidJarPath)
     }
 
-    static void insertOtherJarPath(Project project) throws IOException {
-        String sdkPath = getSDKPath(project)
-        String appcompat = sdkPath + "/extras/android/support/v7/appcompat/libs/android-support-v7-appcompat.jar"
-        MyInject.appendClassPath(appcompat)
-
-        String cardview = sdkPath + "/extras/android/support/v7/cardview/libs/android-support-v7-cardview.jar"
-        MyInject.appendClassPath(cardview)
-
-        String recyclerview = sdkPath + "/extras/android/support/v7/recyclerview/libs/android-support-v7-recyclerview.jar"
-        MyInject.appendClassPath(recyclerview)
-
-        String gridlayout = sdkPath + "/extras/android/support/v7/gridlayout/libs/android-support-v7-gridlayout.jar"
-        MyInject.appendClassPath(gridlayout)
-    }
-
-    static void insertTimeUtilPath(Project project) throws IOException {
+    static void appendTimeUtilPath(Project project) throws IOException {
         MyInject.appendClassClassPath(TimeUtil.class.name)
     }
 

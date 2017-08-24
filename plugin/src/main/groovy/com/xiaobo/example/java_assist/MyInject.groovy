@@ -55,7 +55,6 @@ class MyInject {
      * @param path 目录的绝对路径
      */
     static void injectDir(String path) {
-        pool.appendClassPath(path)
         File dir = new File(path)
         if (dir.isDirectory()) {
             dir.eachFileRecurse { File file ->
@@ -67,7 +66,7 @@ class MyInject {
 
                     // 获取 class name，形如 com.xiaobo.example.modifybytecode_javaassist.Test
                     String className = filePath.replace(path + "/", "").replace('/', '.').replace(".class", "")
-                    println "============= processing class ${className} ============="
+                    // println "============= processing class ${className} ============="
                     injectClass(className, path)
                 }
             }
@@ -92,14 +91,13 @@ class MyInject {
             jarFile.delete()
 
             // 注入代码
-            pool.appendClassPath(jarZipDir)
             for (String className : classNameList) {
                 if (className.endsWith(".class")
                         && !className.contains('R$')
                         && !className.contains('R.class')
                         && !className.contains("BuildConfig.class")) {
                     className = className.substring(0, className.length() - 6)
-                    println "============= processing class ${className} ============="
+                    // println "============= processing class ${className} ============="
                     injectClass(className, jarZipDir)
                 }
             }
@@ -119,14 +117,25 @@ class MyInject {
         }
 
         // 尝试计算每个方法调用的时间
+        boolean hasInsertedField = false
         CtMethod[] methods = c.getDeclaredMethods()
         for (CtMethod method : methods) {
-            println "------------- ${method.longName} -------------"
+            // println "------------- ${method.longName} -------------"
             // 抽象方法和 native 法不处理
             if (null != method.getMethodInfo2().getCodeAttribute()) {
                 try {
                     // addTiming1(c, method.name)
-                    addTiming2(c, method)
+                    // addTiming2(c, method)
+
+                    if (!hasInsertedField) {
+                        hasInsertedField = true
+
+                        CtField startTimeList = new CtField("Ljava/lang/Object;", "__start_time_list", c)
+                        startTimeList.setModifiers(Modifier.PUBLIC)
+                        startTimeList.setModifiers(Modifier.STATIC)
+                        c.addField(startTimeList)
+                    }
+                    addTiming3(c, method)
                 } catch (Exception e) {
                     println "?????????????????? error: $e, ${method.longName} ignored."
                 }
@@ -221,6 +230,63 @@ class MyInject {
 
         String afterCommand = TimeUtil.class.name + ".pop();"
         method.insertAfter(afterCommand)
+    }
+
+    private static void addTiming3(CtClass c, CtMethod method) {
+        // 忽略 TimeUtil 本身！否则会造成死循环，就栈溢出了！
+        if (method.longName.startsWith(TimeUtil.class.name)) {
+            // 改变 sTag sCostBiggerThan 变量值
+            try {
+                c.getDeclaredField("sTag_Real")
+            } catch (NotFoundException e) {
+                CtField field = c.getDeclaredField("sTag")
+                CtField realField = new CtField(field, c)
+                realField.setName("sTag_Real")
+                c.addField(realField, "\"${appProject.method_time_cost.tag}\"")
+
+                // println "%%%%%%% add sTag_Real: ${realField}"
+            }
+            try {
+                c.getDeclaredField("sCostBiggerThan_Real")
+            } catch (NotFoundException e) {
+                CtField field = c.getDeclaredField("sCostBiggerThan")
+                CtField realField = new CtField(field, c)
+                realField.setName("sCostBiggerThan_Real")
+                c.addField(realField, "(long)${appProject.method_time_cost.costBiggerThan}")
+
+                // println "%%%%%%% add sCostBiggerThan_Real: ${realField}"
+            }
+
+            return
+        }
+
+        method.insertBefore("""
+            if (java.lang.Thread.currentThread().getName().equals("main")) {
+                if (null == __start_time_list) {
+                    __start_time_list = new java.util.LinkedList();
+                }
+                ((java.util.LinkedList) __start_time_list).push((Object) java.lang.Long.valueOf(System.currentTimeMillis()));
+            }
+        """)
+        method.insertAfter("""
+            if (java.lang.Thread.currentThread().getName().equals("main")) {
+                java.lang.Long start_time = (Long) ((java.util.LinkedList) __start_time_list).pop();
+                long end_time = System.currentTimeMillis();
+
+                StackTraceElement[] elements = java.lang.Thread.currentThread().getStackTrace();
+                String callFrom = com.xiaobo.example.java_assist.TimeUtil.getCallFrom(elements[2]);
+
+                // 当 (end - start) 大于多少时才输出
+                long cost = end_time - start_time.longValue();
+                if (cost >= com.xiaobo.example.java_assist.TimeUtil.getCostBiggerThan()) {
+                    String lineNumber = elements[2].getLineNumber() != -1 ? ":" + elements[2].getLineNumber() : "";
+                    if (!lineNumber.equals("")) {
+                        callFrom = callFrom.substring(0, callFrom.length() - 1) + lineNumber + ")";
+                    }
+                    android.util.Log.d(com.xiaobo.example.java_assist.TimeUtil.getTag(), callFrom + " cost: " + cost + " ms");
+                }
+            }
+        """)
     }
 
 }

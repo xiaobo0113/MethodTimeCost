@@ -3,7 +3,7 @@ package com.xiaobo.example.java_assist;
 import android.util.Log;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
 import static java.lang.Thread.currentThread;
@@ -14,7 +14,7 @@ import static java.lang.Thread.currentThread;
 
 public class TimeUtil {
 
-    private static HashMap<String, LinkedList<Long>> sTimes = new HashMap<>();
+    private static LinkedHashMap<String, LinkedList<Long>> sTimes = new LinkedHashMap<>();
 
     private static String sTag = null;
     private static long sCostBiggerThan = Long.MIN_VALUE;
@@ -62,7 +62,7 @@ public class TimeUtil {
         }
     }
 
-    private static String getTag() {
+    public static String getTag() {
         if (sTag == null) {
             Class c = TimeUtil.class;
             try {
@@ -78,7 +78,7 @@ public class TimeUtil {
         return sTag;
     }
 
-    private static long getCostBiggerThan() {
+    public static long getCostBiggerThan() {
         if (sCostBiggerThan == Long.MIN_VALUE) {
             Class c = TimeUtil.class;
             try {
@@ -94,7 +94,7 @@ public class TimeUtil {
         return sCostBiggerThan;
     }
 
-    private static String getCallFrom(StackTraceElement element) {
+    public static String getCallFrom(StackTraceElement element) {
         StringBuilder sb = new StringBuilder();
         sb.append(element.getClassName()).
                 append(".").
@@ -107,4 +107,3 @@ public class TimeUtil {
     }
 
 }
-
