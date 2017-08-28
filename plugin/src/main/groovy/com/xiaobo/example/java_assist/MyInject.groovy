@@ -1,6 +1,7 @@
 package com.xiaobo.example.java_assist
 
 import javassist.*
+import javassist.bytecode.ClassFile
 import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
 
@@ -85,25 +86,27 @@ class MyInject {
             String jarZipDir = jarFile.getParent() + "/" + jarFile.getName().replace('.jar', '')
 
             // 解压jar包, 返回jar包中所有class的完整类名的集合（带.class后缀）
-            List classNameList = JarZipUtil.unzipJar(path, jarZipDir)
+            List classNameList = JarZipUtil.unzipJarWithCheck(path, jarZipDir)
 
-            // 删除原来的jar包
-            jarFile.delete()
-
-            // 注入代码
-            for (String className : classNameList) {
-                if (className.endsWith(".class")
-                        && !className.contains('R$')
-                        && !className.contains('R.class')
-                        && !className.contains("BuildConfig.class")) {
-                    className = className.substring(0, className.length() - 6)
-                    // println "============= processing class ${className} ============="
-                    injectClass(className, jarZipDir)
+            if (null != classNameList) {
+                // 删除原来的jar包
+                jarFile.delete()
+                // 注入代码
+                for (String className : classNameList) {
+                    if (className.endsWith(".class")
+                            && !className.contains('R$')
+                            && !className.contains('R.class')
+                            && !className.contains("BuildConfig.class")) {
+                        className = className.substring(0, className.length() - 6)
+                        // println "============= processing class ${className} ============="
+                        injectClass(className, jarZipDir)
+                    }
                 }
+                // 从新打包jar
+                JarZipUtil.zipJar(jarZipDir, path)
+            } else {
+                println "?????????????????? error: file ${path} have duplicate class(ignore case), ignored."
             }
-
-            // 从新打包jar
-            JarZipUtil.zipJar(jarZipDir, path)
 
             // 删除目录
             FileUtils.deleteDirectory(new File(jarZipDir))
@@ -130,10 +133,12 @@ class MyInject {
                     if (!hasInsertedField) {
                         hasInsertedField = true
 
-                        CtField startTimeList = new CtField("Ljava/lang/Object;", "__start_time_list", c)
+                        CtClass linkedListClass = pool.get("java.util.LinkedList");
+                        // CtField startTimeList = new CtField("Ljava/lang/Object;", "__start_time_list", c)
+                        CtField startTimeList = new CtField(linkedListClass, "__start_time_list", c)
                         startTimeList.setModifiers(Modifier.PUBLIC)
                         startTimeList.setModifiers(Modifier.STATIC)
-                        c.addField(startTimeList)
+                        c.addField(startTimeList, CtField.Initializer.byNew(linkedListClass))
                     }
                     addTiming3(c, method)
                 } catch (Exception e) {
@@ -142,7 +147,23 @@ class MyInject {
             }
         }
 
-        c.writeFile(path)
+        if (appProject.method_time_cost.useJava_7) {
+            c.getClassFile().setMajorVersion(ClassFile.JAVA_7)
+        }
+
+        // 直接使用 c.writeFile 会有写入失败的情况，比如某个 jar 包中的类引用了另一个不存在的类。
+        try {
+            // c.writeFile(path)
+            def realPath = new File(path, c.name.replace('.', '/') + '.class')
+            // 先转换成 bytes，此时可能失败，比如某个 jar 包中的类引用了另一个不存在的类，但是此时 OutputStream 还没有介入，不至于最原始的文件被清空了。
+            byte[] bytes = c.toBytecode()
+            realPath.withOutputStream {
+                it.write(bytes)
+            }
+        } catch (Exception e) {
+            println "?????????????????? error: $e, ${c.name} ignored."
+        }
+
         c.detach()
     }
 
@@ -261,32 +282,39 @@ class MyInject {
         }
 
         method.insertBefore("""
-            if (java.lang.Thread.currentThread().getName().equals("main")) {
-                if (null == __start_time_list) {
-                    __start_time_list = new java.util.LinkedList();
-                }
-                ((java.util.LinkedList) __start_time_list).push((Object) java.lang.Long.valueOf(System.currentTimeMillis()));
-            }
+            com.xiaobo.example.java_assist.TimeUtil.push(__start_time_list);
         """)
         method.insertAfter("""
-            if (java.lang.Thread.currentThread().getName().equals("main")) {
-                java.lang.Long start_time = (Long) ((java.util.LinkedList) __start_time_list).pop();
-                long end_time = System.currentTimeMillis();
-
-                StackTraceElement[] elements = java.lang.Thread.currentThread().getStackTrace();
-                String callFrom = com.xiaobo.example.java_assist.TimeUtil.getCallFrom(elements[2]);
-
-                // 当 (end - start) 大于多少时才输出
-                long cost = end_time - start_time.longValue();
-                if (cost >= com.xiaobo.example.java_assist.TimeUtil.getCostBiggerThan()) {
-                    String lineNumber = elements[2].getLineNumber() != -1 ? ":" + elements[2].getLineNumber() : "";
-                    if (!lineNumber.equals("")) {
-                        callFrom = callFrom.substring(0, callFrom.length() - 1) + lineNumber + ")";
-                    }
-                    android.util.Log.d(com.xiaobo.example.java_assist.TimeUtil.getTag(), callFrom + " cost: " + cost + " ms");
-                }
-            }
+            com.xiaobo.example.java_assist.TimeUtil.pop(__start_time_list);
         """)
+
+//        method.insertBefore("""
+//            if (java.lang.Thread.currentThread().getName().equals("main")) {
+//                if (null == __start_time_list) {
+//                    __start_time_list = new java.util.LinkedList();
+//                }
+//                ((java.util.LinkedList) __start_time_list).push((Object) java.lang.Long.valueOf(System.currentTimeMillis()));
+//            }
+//        """)
+//        method.insertAfter("""
+//            if (java.lang.Thread.currentThread().getName().equals("main")) {
+//                java.lang.Long start_time = (Long) ((java.util.LinkedList) __start_time_list).pop();
+//                long end_time = System.currentTimeMillis();
+//
+//                StackTraceElement[] elements = java.lang.Thread.currentThread().getStackTrace();
+//                String callFrom = com.xiaobo.example.java_assist.TimeUtil.getCallFrom(elements[2]);
+//
+//                // 当 (end - start) 大于多少时才输出
+//                long cost = end_time - start_time.longValue();
+//                if (cost >= com.xiaobo.example.java_assist.TimeUtil.getCostBiggerThan()) {
+//                    String lineNumber = elements[2].getLineNumber() != -1 ? ":" + elements[2].getLineNumber() : "";
+//                    if (!lineNumber.equals("")) {
+//                        callFrom = callFrom.substring(0, callFrom.length() - 1) + lineNumber + ")";
+//                    }
+//                    android.util.Log.d(com.xiaobo.example.java_assist.TimeUtil.getTag(), callFrom + " cost: " + cost + " ms");
+//                }
+//            }
+//        """)
     }
 
 }

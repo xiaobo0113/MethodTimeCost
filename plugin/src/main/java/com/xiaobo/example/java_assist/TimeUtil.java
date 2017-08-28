@@ -23,31 +23,20 @@ public class TimeUtil {
         // do nothing.
     }
 
-    public static void push() {
-        Long start = System.currentTimeMillis();
+    public static void push(LinkedList<Long> start_time_list) {
         if (currentThread().getName().equals("main")) {
-            // elements[3] 即为调用 push 的方法
-            StackTraceElement[] elements = Thread.currentThread().getStackTrace();
-            String callFrom = getCallFrom(elements[3]);
-            LinkedList<Long> times = sTimes.get(callFrom);
-            if (null == times) {
-                times = new LinkedList<>();
-                times.push(start);
-            } else {
-                times.push(start);
-            }
-            sTimes.put(callFrom, times);
+            start_time_list.push(System.currentTimeMillis());
         }
     }
 
-    public static void pop() {
-        Long end = System.currentTimeMillis();
+    public static void pop(LinkedList<Long> start_time_list) {
         if (currentThread().getName().equals("main")) {
+            Long end = System.currentTimeMillis();
+
             // elements[3] 即为调用 push 的方法
             StackTraceElement[] elements = Thread.currentThread().getStackTrace();
             String callFrom = getCallFrom(elements[3]);
-            LinkedList<Long> times = sTimes.get(callFrom);
-            Long start = times.pop();
+            Long start = start_time_list.pop();
             // 当 (end - start) 大于多少时才输出
             if ((end - start) >= getCostBiggerThan()) {
                 String lineNumber = elements[3].getLineNumber() != -1 ? ":" + elements[3].getLineNumber() : "";
@@ -55,9 +44,6 @@ public class TimeUtil {
                     callFrom = callFrom.substring(0, callFrom.length() - 1) + lineNumber + ")";
                 }
                 Log.d(getTag(), callFrom + " cost: " + (end - start) + " ms");
-            }
-            if (times.isEmpty()) {
-                sTimes.remove(callFrom);
             }
         }
     }

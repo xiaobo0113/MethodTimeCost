@@ -14,7 +14,7 @@ import java.util.zip.ZipEntry
 class JarZipUtil {
 
     /**
-     * 将该jar包解压到指定目录
+     * 将该jar包解压到指定目录。
      *
      * @param jarPath jar包的绝对路径
      * @param destDirPath jar包解压后的保存路径
@@ -34,6 +34,45 @@ class JarZipUtil {
                 String entryName = jarEntry.getName()
                 if (entryName.endsWith('.class')) {
                     String className = entryName.replace('\\', '.').replace('/', '.')
+                    list.add(className)
+                }
+                String outFileName = destDirPath + "/" + entryName
+                File outFile = new File(outFileName)
+                outFile.getParentFile().mkdirs()
+                InputStream inputStream = jarFile.getInputStream(jarEntry)
+                FileOutputStream fileOutputStream = new FileOutputStream(outFile)
+                fileOutputStream << inputStream
+                fileOutputStream.close()
+                inputStream.close()
+            }
+            jarFile.close()
+        }
+        return list
+    }
+
+    /**
+     * 将该jar包解压到指定目录，如果jar包同一个路径下同时有a.class和A.class存在，那么解压会有问题！
+     * 如Baidu_Cloud_IMSDK-2.4.1.jar包下的zhida目录下。此时返回空，不对该jar做处理。
+     */
+    static List unzipJarWithCheck(String jarPath, String destDirPath) {
+        List list = new ArrayList()
+        if (jarPath.endsWith('.jar')) {
+
+            JarFile jarFile = new JarFile(jarPath)
+            Enumeration<JarEntry> jarEntrys = jarFile.entries()
+            while (jarEntrys.hasMoreElements()) {
+                JarEntry jarEntry = jarEntrys.nextElement()
+                if (jarEntry.directory) {
+                    continue
+                }
+                String entryName = jarEntry.getName()
+                if (entryName.endsWith('.class')) {
+                    String className = entryName.replace('\\', '.').replace('/', '.')
+                    for (String s : list) {
+                        if (s.toLowerCase() == className.toLowerCase()) {
+                            return null
+                        }
+                    }
                     list.add(className)
                 }
                 String outFileName = destDirPath + "/" + entryName
