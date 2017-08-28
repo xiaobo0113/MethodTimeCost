@@ -81,13 +81,18 @@ class JavaAssistTransform extends Transform {
         appendBasicClassPath()
         releaseTimeUtilClass()
 
-        // 提前把所有文件加入路径中
+        // 提前把所有文件加入路径中，必须使用 insertClassPath 而不是 appendClassPath！！
+        // 因为有些 jar 包中有占坑的类，比如 lego.jar 中就有 android.graphics.drawable.StateListDrawable 类，
+        // 该类参与编译，但是最终运行在设备上时是运行的 android-sdk.jar 中的类。
+        // 问题是 lego.jar 是用 java_7 编译的，如果不使用 insertClassPath，JavaAssist 读取到的是本地的 android-sdk.jar 中的类，
+        // 而本地的该 jar 包很有可能由 java_8 编译而成，所以 JavaAssist 认为该 class 是 java_8 编译的，
+        // 在写回 jar 包时也采用 java_8 的方式写回，最终导致 dex 过程出错！
         invocation.inputs.each {
             it.directoryInputs.each { DirectoryInput dir ->
-                MyInject.appendClassPath(dir.file.absolutePath)
+                MyInject.insertClassPath(dir.file.absolutePath)
             }
             it.jarInputs.each { JarInput jar ->
-                MyInject.appendClassPath(jar.file.absolutePath)
+                MyInject.insertClassPath(jar.file.absolutePath)
             }
         }
 

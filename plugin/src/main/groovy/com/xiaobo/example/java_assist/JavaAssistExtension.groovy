@@ -10,15 +10,6 @@ class JavaAssistExtension {
     private String tag = "MethodTimeCost"
     private long costBiggerThan = 0
 
-    boolean getUseJava_7() {
-        return useJava_7
-    }
-
-    void setUseJava_7(boolean useJava_7) {
-        this.useJava_7 = useJava_7
-    }
-    private boolean useJava_7 = false
-
     private static final int MAX_LENGTH = 23
 
     JavaAssistExtension(Project project) {

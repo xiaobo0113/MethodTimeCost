@@ -19,7 +19,6 @@ The other one is apply the plugin in the build.gradle of your `application modul
         enable = true           // optional, default is true.
         costBiggerThan = 20     // optional, default is 0. ==> show log of methods cost time >= 0
         tag = "xiaobo"          // optional, default is MethodTimeCost
-        // useJava_7 = true     // optional, if compile fail, add this line
     }
 
 ## How it works

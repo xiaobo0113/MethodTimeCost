@@ -19,12 +19,22 @@ class MyInject {
     }
 
     /**
-     * 添加 classPath 到 ClassPool
+     * 添加 classPath 到 ClassPool 末尾
      * @param libPath
      */
     static void appendClassPath(String libPath) {
         if (new File(libPath).exists()) {
             pool.appendClassPath(libPath)
+        }
+    }
+
+    /**
+     * 添加 classPath 到 ClassPool 开始
+     * @param libPath
+     */
+    static void insertClassPath(String libPath) {
+        if (new File(libPath).exists()) {
+            pool.insertClassPath(libPath)
         }
     }
 
@@ -147,8 +157,8 @@ class MyInject {
             }
         }
 
-        if (appProject.method_time_cost.useJava_7) {
-            c.getClassFile().setMajorVersion(ClassFile.JAVA_7)
+        if (c.getClassFile().getMajorVersion() == ClassFile.JAVA_8) {
+            println "++++++++++++++++++++${path}, ${c.name} is compiled with JAVA_8."
         }
 
         // 直接使用 c.writeFile 会有写入失败的情况，比如某个 jar 包中的类引用了另一个不存在的类。
