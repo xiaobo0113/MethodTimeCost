@@ -25,7 +25,7 @@ The other one is apply the plugin in the build.gradle of your `application modul
 
     class Test {
         public int add (int a, int b) {
-            int result = a + b; // imagine this is line 3
+            int result = a + b;
             return result;
         }
     }
@@ -35,8 +35,8 @@ will change into
     class Test {
         static LinkedList<Long> __time_list = new LinkedList<Long>();
         public int add (int a, int b) {
-            __time_list.push(System.currentTimeMillis());   // now this is line 3
-            int result = a + b;                             // changed to line 4
+            __time_list.push(System.currentTimeMillis());
+            int result = a + b;
             Lod.d(TAG, "" + System.currentTimeMillis() - __time_list.pop());
             return result;
         }
@@ -45,7 +45,7 @@ will change into
 The code is inserted by Java Assist.
 
 ## Suggestion
-Just use the plugin under debug mode. For it changed the byte code of your classes, which results in a wrong `line number` if you want to locate a right line number from stacktrace when you get an exception.
+Just use the plugin under debug mode. For it will insert code into your source class files, which will increases the size of your apk.
 
 ## Others
 1. A few methods can not be monitored since the exception from Java Assist.
