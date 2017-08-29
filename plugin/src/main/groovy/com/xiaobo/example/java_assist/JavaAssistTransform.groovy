@@ -120,8 +120,8 @@ class JavaAssistTransform extends Transform {
                 File outFile = outputProvider.getContentLocation(outName, outputTypes, scopes, Format.JAR)
                 FileUtils.copyFile(jar.file, outFile)
 
-                // 只处理本工程相关 module 的代码，不处理所依赖的代码，否则编译过程真的会很慢很慢！！
-                if (!jar.file.absolutePath.startsWith(mProject.rootDir.absolutePath)) {
+                // 暂时不处理 libs 中的 jar 包代码
+                if (!jar.file.absolutePath.startsWith(mProject.rootDir.absolutePath) || jar.file.name != 'classes.jar') {
                     return
                 }
 
@@ -146,6 +146,8 @@ class JavaAssistTransform extends Transform {
     private void appendBasicClassPath() {
         // 添加 android.jar 否则会提示找不到 android.util.Log 等类似的错误！！！
         AndroidJarPathUtil.appendAndroidJarPath(mProject)
+        // 添加 org.apache.http.legacy.jar
+        AndroidJarPathUtil.appendApacheHttpLegacyJarPath(mProject)
         /** 添加 {@link com.xiaobo.example.java_assist.TimeUtil} */
         AndroidJarPathUtil.appendTimeUtilPath(mProject)
     }

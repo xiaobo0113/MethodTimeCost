@@ -46,6 +46,13 @@ class AndroidJarPathUtil {
         MyInject.appendClassPath(fullAndroidJarPath)
     }
 
+    static void appendApacheHttpLegacyJarPath(Project project) throws IOException {
+        String sdkPath = getSDKPath(project)
+        String compileSdkVersion = getCompileSdkVersion(project)
+        String fullApacheHttpLegacyJarPath = new StringBuilder().append(sdkPath).append("/platforms/").append(compileSdkVersion).append("/optional/org.apache.http.legacy.jar").toString()
+        MyInject.appendClassPath(fullApacheHttpLegacyJarPath)
+    }
+
     static void appendTimeUtilPath(Project project) throws IOException {
         MyInject.appendClassClassPath(TimeUtil.class.name)
     }

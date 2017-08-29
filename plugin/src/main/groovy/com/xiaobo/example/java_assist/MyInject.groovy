@@ -13,9 +13,17 @@ class MyInject {
 
     private static Project appProject
     private static ClassPool pool = ClassPool.getDefault()
+    private static String tagReal = "MethodTimeCost"
+    private static long costBiggerThanReal = 0
 
     static void setAppProject(Project appProject) {
         this.appProject = appProject
+        if (appProject.method_time_cost.tag) {
+            tagReal = appProject.method_time_cost.tag
+        }
+        if (appProject.method_time_cost.costBiggerThan > 0) {
+            costBiggerThanReal = appProject.method_time_cost.costBiggerThan
+        }
     }
 
     /**
@@ -129,6 +137,10 @@ class MyInject {
             c.defrost()
         }
 
+        if (className == TimeUtil.canonicalName) {
+            return
+        }
+
         // 尝试计算每个方法调用的时间
         boolean hasInsertedField = false
         CtMethod[] methods = c.getDeclaredMethods()
@@ -177,15 +189,47 @@ class MyInject {
         c.detach()
     }
 
-    private static String getLog(String log) {
-        return "android.util.Log.d(\"xiaobo\", $log);"
+    private static String getLog(String methodName) {
+        return """
+            if (java.lang.Thread.currentThread().getName().equals("main")) {
+                long cost = System.currentTimeMillis() - start;
+                if (cost >= $costBiggerThanReal) {
+                    android.util.Log.d("$tagReal", "${methodName} cost " + cost + " ms.");
+                }
+            }
+        """
     }
 
-/**
- * 参考 https://www.ibm.com/developerworks/library/j-dyn0916/index.html
- *
- * 采用包装一个新方法来调用原方法的方式，有一个问题是方法数会多一倍，用 addTiming2() 改进！
- */
+    static void addFieldsToTimeUtil() {
+        CtClass c = pool.get(TimeUtil.canonicalName)
+        // 改变 sTag sCostBiggerThan 变量值
+        try {
+            c.getDeclaredField("sTag_Real")
+        } catch (NotFoundException e) {
+            CtField field = c.getDeclaredField("sTag")
+            CtField realField = new CtField(field, c)
+            realField.setName("sTag_Real")
+            c.addField(realField, "\"${appProject.method_time_cost.tag}\"")
+
+            // println "%%%%%%% add sTag_Real: ${realField}"
+        }
+        try {
+            c.getDeclaredField("sCostBiggerThan_Real")
+        } catch (NotFoundException e) {
+            CtField field = c.getDeclaredField("sCostBiggerThan")
+            CtField realField = new CtField(field, c)
+            realField.setName("sCostBiggerThan_Real")
+            c.addField(realField, "(long)${appProject.method_time_cost.costBiggerThan}")
+
+            // println "%%%%%%% add sCostBiggerThan_Real: ${realField}"
+        }
+    }
+
+    /**
+     * 参考 https://www.ibm.com/developerworks/library/j-dyn0916/index.html
+     *
+     * 采用包装一个新方法来调用原方法的方式，有一个问题是方法数会多一倍，用 addTiming2() 改进！
+     */
     private static void addTiming1(CtClass clazz, String oldName) {
         //  get the method information (throws exception if method with
         //  given name is not declared directly by this class, returns
@@ -212,8 +256,7 @@ class MyInject {
 
         //  finish body text generation with call to print the timing
         //  information, and return saved value (if not void)
-        String log = "\"Call ${oldMethod.longName} took \" + (System.currentTimeMillis() - start) + \" ms.\""
-        body.append("${getLog(log)}\n")
+        body.append("${getLog(newMethod.longName)}\n")
         if ("void" != type) {
             body.append("return result;\n")
         }
@@ -229,33 +272,6 @@ class MyInject {
     }
 
     private static void addTiming2(CtClass c, CtMethod method) {
-        // 忽略 TimeUtil 本身！否则会造成死循环，就栈溢出了！
-        if (method.longName.startsWith(TimeUtil.class.name)) {
-            // 改变 sTag sCostBiggerThan 变量值
-            try {
-                c.getDeclaredField("sTag_Real")
-            } catch (NotFoundException e) {
-                CtField field = c.getDeclaredField("sTag")
-                CtField realField = new CtField(field, c)
-                realField.setName("sTag_Real")
-                c.addField(realField, "\"${appProject.method_time_cost.tag}\"")
-
-                // println "%%%%%%% add sTag_Real: ${realField}"
-            }
-            try {
-                c.getDeclaredField("sCostBiggerThan_Real")
-            } catch (NotFoundException e) {
-                CtField field = c.getDeclaredField("sCostBiggerThan")
-                CtField realField = new CtField(field, c)
-                realField.setName("sCostBiggerThan_Real")
-                c.addField(realField, "(long)${appProject.method_time_cost.costBiggerThan}")
-
-                // println "%%%%%%% add sCostBiggerThan_Real: ${realField}"
-            }
-
-            return
-        }
-
         String beforeCommand = TimeUtil.class.name + ".push();"
         method.insertBefore(beforeCommand)
 
@@ -264,38 +280,11 @@ class MyInject {
     }
 
     private static void addTiming3(CtClass c, CtMethod method) {
-        // 忽略 TimeUtil 本身！否则会造成死循环，就栈溢出了！
-        if (method.longName.startsWith(TimeUtil.class.name)) {
-            // 改变 sTag sCostBiggerThan 变量值
-            try {
-                c.getDeclaredField("sTag_Real")
-            } catch (NotFoundException e) {
-                CtField field = c.getDeclaredField("sTag")
-                CtField realField = new CtField(field, c)
-                realField.setName("sTag_Real")
-                c.addField(realField, "\"${appProject.method_time_cost.tag}\"")
-
-                // println "%%%%%%% add sTag_Real: ${realField}"
-            }
-            try {
-                c.getDeclaredField("sCostBiggerThan_Real")
-            } catch (NotFoundException e) {
-                CtField field = c.getDeclaredField("sCostBiggerThan")
-                CtField realField = new CtField(field, c)
-                realField.setName("sCostBiggerThan_Real")
-                c.addField(realField, "(long)${appProject.method_time_cost.costBiggerThan}")
-
-                // println "%%%%%%% add sCostBiggerThan_Real: ${realField}"
-            }
-
-            return
-        }
-
         method.insertBefore("""
             com.xiaobo.example.java_assist.TimeUtil.push(__start_time_list);
         """)
         method.insertAfter("""
-            com.xiaobo.example.java_assist.TimeUtil.pop(__start_time_list);
+            com.xiaobo.example.java_assist.TimeUtil.pop(__start_time_list, "${method.longName}", "${tagReal}", (long)$costBiggerThanReal);
         """)
 
 //        method.insertBefore("""
