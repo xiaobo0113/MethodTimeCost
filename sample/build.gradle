@@ -1,27 +1,12 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.xiaobo.method_time_cost'
+apply from: 'task_time.gradle'
 
-// apply plugin 'com.xiaobo.method_time_cost' only under debug mode.
-project.gradle.startParameter.getTaskNames().each { String task ->
-    println("task in start parameters >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " + task)
-
-    def index = task.lastIndexOf(':')
-    if (-1 != index) {
-        task = task.substring(index + 1)
-    }
-    if (task.startsWith("assemble") && task.endsWith("Debug")) {
-        println("apply plugin >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> com.xiaobo.method_time_cost")
-
-        apply plugin: 'com.xiaobo.method_time_cost'
-        method_time_cost {
-            enable = true           // optional, default is true.
-            costBiggerThan = 20     // optional, default is 0. ==> show log of methods cost time >= 0
-            tag = "xiaobo"          // optional, default is MethodTimeCost
-        }
-    }
+method_time_cost {
+    enable = true           // optional, default is true.
+    costBiggerThan = 20     // optional, default is 0. ==> show log of methods cost time >= 0
+    tag = "xiaobo"          // optional, default is MethodTimeCost
 }
-
-// show how much time each task costs.
-project.gradle.addListener(new com.xiaobo.example.BuildTimeListener())
 
 android {
     compileSdkVersion 25
