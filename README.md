@@ -4,7 +4,7 @@ A gradle plugin to show time costs of methods on `main-thread`.
 ## How to use
 Just two lines.
 
-One is add dependency in the build.gradle of the `root project`.
+One is to add dependency in the build.gradle of the `root project`.
 
     dependencies {
         classpath 'com.xiaobo.plugin:method-time-cost:1.0.5'
@@ -12,7 +12,7 @@ One is add dependency in the build.gradle of the `root project`.
         ...
     }
 
-The other one is apply the plugin in the build.gradle of your `application module`. The extension `method_time_cost` is optional.
+The other one is to apply the plugin in the build.gradle of your `application module`. The extension `method_time_cost` is optional.
 
     apply plugin: 'com.xiaobo.method_time_cost'
     method_time_cost {
@@ -37,7 +37,7 @@ will change into
         public int add (int a, int b) {
             __time_list.push(System.currentTimeMillis());
             int result = a + b;
-            Lod.d(TAG, "" + System.currentTimeMillis() - __time_list.pop());
+            Log.d(TAG, "" + System.currentTimeMillis() - __time_list.pop());
             return result;
         }
     }
