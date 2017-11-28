@@ -53,8 +53,8 @@ class AndroidJarPathUtil {
         MyInject.appendClassPath(fullApacheHttpLegacyJarPath)
     }
 
-    static void appendTimeUtilPath(Project project) throws IOException {
-        MyInject.appendClassClassPath(TimeUtil.class.name)
+    static void appendTimeUtilPath(Project project, String timeUtilPath) throws IOException {
+        MyInject.appendClassPath(timeUtilPath)
     }
 
 }

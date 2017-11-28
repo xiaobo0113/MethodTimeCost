@@ -1,6 +1,5 @@
 package com.xiaobo.example.java_assist
 
-import com.android.build.api.transform.*
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.BaseExtension
@@ -78,8 +77,12 @@ class JavaAssistTransform extends Transform {
         outDirDir.mkdirs()
 
         MyInject.setAppProject(getAppProject())
-        appendBasicClassPath()
-        releaseTimeUtilClass()
+        String timeUtilPath = releaseTimeUtilClass()
+        if ("" == timeUtilPath) {
+            println "TimeUtil.class 释放失败，不进行任何操作"
+            return
+        }
+        appendBasicClassPath(timeUtilPath)
 
         // 提前把所有文件加入路径中，必须使用 insertClassPath 而不是 appendClassPath！！
         // 因为有些 jar 包中有占坑的类，比如 lego.jar 中就有 android.graphics.drawable.StateListDrawable 类，
@@ -143,16 +146,17 @@ class JavaAssistTransform extends Transform {
         return null
     }
 
-    private void appendBasicClassPath() {
+    private void appendBasicClassPath(String timeUtilPath) {
         // 添加 android.jar 否则会提示找不到 android.util.Log 等类似的错误！！！
         AndroidJarPathUtil.appendAndroidJarPath(mProject)
         // 添加 org.apache.http.legacy.jar
         AndroidJarPathUtil.appendApacheHttpLegacyJarPath(mProject)
         /** 添加 {@link com.xiaobo.example.java_assist.TimeUtil} */
-        AndroidJarPathUtil.appendTimeUtilPath(mProject)
+        AndroidJarPathUtil.appendTimeUtilPath(mProject, timeUtilPath)
     }
 
-    private void releaseTimeUtilClass() {
+    private String releaseTimeUtilClass() {
+        String filePath = ""
         BaseExtension android = mProject.getExtensions().getByName("android")
 
         // 释放 TimeUtil 到编译目录，供运行时使用
@@ -167,11 +171,15 @@ class JavaAssistTransform extends Transform {
                     if (!dir.exists()) {
                         dir.mkdirs()
                     }
-                    OutputStream os = new FileOutputStream(new File(dir, TimeUtil.class.simpleName + ".class"))
+                    File file = new File(dir, TimeUtil.class.simpleName + ".class")
+                    OutputStream os = new FileOutputStream(file)
                     os << is
+                    filePath = file.getAbsolutePath()
                 }
             }
         }
+
+        return filePath
     }
 
 }
