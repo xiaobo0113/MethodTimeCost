@@ -1,14 +1,6 @@
 apply plugin: 'groovy'
 apply plugin: 'maven'
 
-if (file('upload.gradle').exists()) {
-    apply from: 'upload.gradle'
-}
-
-if (file('bintray.gradle').exists()) {
-    apply from: 'bintray.gradle'
-}
-
 dependencies {
     repositories {
         mavenLocal()
@@ -30,3 +22,11 @@ targetCompatibility = '1.7'
 sourceCompatibility = '1.7'
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+if (file('upload.gradle').exists()) {
+    apply from: 'upload.gradle'
+}
+
+if (file('java_bintray.gradle').exists()) {
+    apply from: 'java_bintray.gradle'
+}
