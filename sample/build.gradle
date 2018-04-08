@@ -10,7 +10,7 @@ method_time_cost {
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "26.0.0"
+    buildToolsVersion '27.0.3'
 
     defaultConfig {
         applicationId "com.xiaobo.example.sample"
