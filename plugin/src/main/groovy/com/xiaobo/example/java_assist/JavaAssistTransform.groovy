@@ -66,7 +66,7 @@ class JavaAssistTransform extends Transform {
     @Override
     void transform(TransformInvocation invocation) throws TransformException, InterruptedException, IOException {
         boolean ignore = false
-        if (!getAppProject().method_time_cost.enable) {
+        if (!mProject.method_time_cost.enable) {
             println ">>>>>>>>>>>>>> ${JavaAssistPlugin.class.simpleName} disabled, do nothing."
             ignore = true
         }
@@ -77,7 +77,7 @@ class JavaAssistTransform extends Transform {
         outDirDir.deleteDir()
         outDirDir.mkdirs()
 
-        MyInject.setAppProject(getAppProject())
+        MyInject.setAppProject(mProject)
         /*String timeUtilPath = releaseTimeUtilClass()
         if ("" == timeUtilPath) {
             println "TimeUtil.class 释放失败，不进行任何操作"
@@ -138,14 +138,14 @@ class JavaAssistTransform extends Transform {
         }
     }
 
-    private Project getAppProject() {
-        for (Project p : mProject.rootProject.subprojects) {
-            if (p.plugins.hasPlugin(AppPlugin.class)) {
-                return p
-            }
-        }
-        return null
-    }
+//    private Project getAppProject() {
+//        for (Project p : mProject.rootProject.subprojects) {
+//            if (p.plugins.hasPlugin(AppPlugin.class)) {
+//                return p
+//            }
+//        }
+//        return null
+//    }
 
     private void appendBasicClassPath() {
         // 添加 android.jar 否则会提示找不到 android.util.Log 等类似的错误！！！
