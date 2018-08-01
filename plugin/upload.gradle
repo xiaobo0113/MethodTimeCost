@@ -1,0 +1,37 @@
+apply plugin: 'maven'
+
+def GROUP_ID = LIB_GROUP
+def ARTIFACT_ID = LIB_ARTIFACT_PLUGIN
+def VERSION_NAME = LIB_VERSION
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            // 提交到远程服务器
+            // repository(url: "http://www.xxx.com/repos") {
+            //    authentication(userName: "admin", password: "admin")
+            // }
+
+            // 提交到本地
+            Properties properties = new Properties()
+            properties.load(rootProject.file("local.properties").newDataInputStream())
+            repository(url: uri(properties.getProperty("local_url")))
+
+            pom.project {
+                groupId GROUP_ID
+                artifactId ARTIFACT_ID
+                version VERSION_NAME
+                packaging 'jar'
+            }
+        }
+    }
+}
+
+dependencies {
+    // gradle sdk
+    compile gradleApi()
+}
+
+repositories {
+    mavenCentral()
+}

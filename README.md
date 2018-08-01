@@ -7,7 +7,7 @@ Just several lines.
 #### add dependency in the build.gradle of the `root project`.
 
     dependencies {
-        classpath 'com.xiaobo.plugin:method-time-cost:1.1.0'
+        classpath 'com.xiaobo.plugin:method-time-cost:1.1.1'
 
         ...
     }
@@ -15,7 +15,7 @@ Just several lines.
 #### add dependency in the build.gradle of your `application module`.
 
     dependencies {
-        compile 'com.xiaobo.plugin:method-time-cost_runtime:1.1.0'
+        compile 'com.xiaobo.plugin:method-time-cost_runtime:1.1.1'
 
         ...
     }

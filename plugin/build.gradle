@@ -27,6 +27,6 @@ if (file('upload.gradle').exists()) {
     apply from: 'upload.gradle'
 }
 
-if (file('java_bintray.gradle').exists()) {
-    apply from: 'java_bintray.gradle'
+if (file('bintray.gradle').exists()) {
+    apply from: 'bintray.gradle'
 }

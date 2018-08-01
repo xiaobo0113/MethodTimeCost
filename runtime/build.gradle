@@ -1,32 +1,14 @@
-apply plugin: 'com.android.library'
+apply plugin: 'java'
 
-android {
-    compileSdkVersion 25
-    buildToolsVersion '27.0.3'
+targetCompatibility = '1.7'
+sourceCompatibility = '1.7'
 
-    defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 25
-        versionCode 1
-        versionName "1.0"
-    }
-
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-}
-
-dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-}
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 if (file('upload.gradle').exists()) {
     apply from: 'upload.gradle'
 }
 
-if (file('android_bintray.gradle').exists()) {
-    apply from: 'android_bintray.gradle'
+if (file('bintray.gradle').exists()) {
+    apply from: 'bintray.gradle'
 }
