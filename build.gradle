@@ -1,14 +1,22 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.method_time_cost_version = "1.1.0"
+    ext.compile_sdk_version = 25
+    ext.build_tools_version = "27.0.3"
+    ext.min_sdk_version = 14
+    ext.target_sdk_version = 25
+
+    ext.method_time_cost_version = "1.1.1"
+    ext.android_gradle_plugin_version = "3.1.4"
+    ext.app_compat_version = "25.4.0"
+    ext.constraint_layout_version = "1.1.2"
     repositories {
         google()
         jcenter()
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.0'
+        classpath 'com.android.tools.build:gradle:' + android_gradle_plugin_version
         classpath 'com.xiaobo.plugin:method-time-cost:' + method_time_cost_version
 
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'

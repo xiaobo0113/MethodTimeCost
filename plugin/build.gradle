@@ -7,11 +7,11 @@ dependencies {
         jcenter()
     }
 
-    compile gradleApi()
-    compile localGroovy()
+    implementation gradleApi()
+    implementation localGroovy()
 
-    compile 'com.android.tools.build:gradle:2.3.3'
-    compile 'org.javassist:javassist:3.20.0-GA'
+    implementation 'com.android.tools.build:gradle:' + android_gradle_plugin_version
+    implementation 'org.javassist:javassist:3.20.0-GA'
 }
 
 repositories {

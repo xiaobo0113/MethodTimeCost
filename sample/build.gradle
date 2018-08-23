@@ -9,13 +9,13 @@ method_time_cost {
 }
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion '27.0.3'
+    compileSdkVersion compile_sdk_version
+    buildToolsVersion build_tools_version
 
     defaultConfig {
         applicationId "com.xiaobo.example.sample"
-        minSdkVersion 14
-        targetSdkVersion 25
+        minSdkVersion min_sdk_version
+        targetSdkVersion target_sdk_version
         versionCode 1
         versionName "1.0"
     }
@@ -29,10 +29,10 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support:appcompat-v7:' + app_compat_version
+    implementation 'com.android.support.constraint:constraint-layout:' + constraint_layout_version
 
-    compile project(':lib-test1')
-    compile 'com.xiaobo.plugin:method-time-cost_runtime:' + rootProject.method_time_cost_version
+    implementation project(':lib-test1')
+    implementation 'com.xiaobo.plugin:method-time-cost_runtime:' + rootProject.method_time_cost_version
 }
