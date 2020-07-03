@@ -31,7 +31,7 @@ Just several lines.
 
 #### You'd better use the terminal to build apk.
 
-    `gradlew assembleDebug`
+    gradlew assembleDebug
 
 ## How it works
 
