@@ -29,6 +29,10 @@ Just several lines.
         tag = "xiaobo"          // optional, default is MethodTimeCost
     }
 
+#### You'd better use the terminal to build apk.
+
+    `gradlew assembleDebug`
+
 ## How it works
 
     class Test {
