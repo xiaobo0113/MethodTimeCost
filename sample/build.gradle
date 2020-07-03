@@ -34,5 +34,5 @@ dependencies {
     implementation 'com.android.support.constraint:constraint-layout:' + constraint_layout_version
 
     implementation project(':lib-test1')
-    implementation 'com.xiaobo.plugin:method-time-cost_runtime:' + rootProject.method_time_cost_version
+    implementation 'com.xiaobo.plugin:method-time-cost_runtime:' + rootProject.method_time_cost_runtime_version
 }

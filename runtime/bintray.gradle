@@ -5,7 +5,7 @@ apply plugin: 'signing'
 apply plugin: 'maven'
 
 group = LIB_GROUP
-version = LIB_VERSION
+version = LIB_VERSION_RUNTIME
 project.archivesBaseName = LIB_ARTIFACT_RUNTIME
 
 task javadocJar(type: Jar, dependsOn: javadoc) {

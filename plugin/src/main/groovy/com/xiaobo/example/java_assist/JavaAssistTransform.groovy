@@ -2,7 +2,6 @@ package com.xiaobo.example.java_assist
 
 import com.android.build.api.transform.*
 import com.android.build.gradle.AppExtension
-import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.internal.pipeline.TransformManager
 import org.apache.commons.codec.digest.DigestUtils
@@ -104,8 +103,10 @@ class JavaAssistTransform extends Transform {
             // directoryInputs 就是 class 文件所在的目录：
             it.directoryInputs.each { DirectoryInput dir ->
                 // 1. 先把修改后的文件写回原目录，再把原目录拷贝到目的目录
-                // MyInject.injectDir(dir.file.absolutePath)
-                // FileUtils.copyDirectory(dir.file, outDirDir)
+                /*if (!ignore) {
+                    MyInject.injectDir(dir.file.absolutePath)
+                }
+                FileUtils.copyDirectory(dir.file, outDirDir)*/
 
                 // 2. 先把原目录拷贝到目的目录，再把修改后的文件写回目的目录，这样原目录中的文件没有改动
                 FileUtils.copyDirectory(dir.file, outDirDir)

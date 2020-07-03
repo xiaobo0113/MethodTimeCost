@@ -42,7 +42,9 @@ class MyInject {
      */
     static void insertClassPath(String libPath) {
         if (new File(libPath).exists()) {
+            println "\n>>>>>>>>>>>>> insertClassPath ${libPath} begin >>>>>>>>>>>>>"
             pool.insertClassPath(libPath)
+            println "<<<<<<<<<<<<< insertClassPath ${libPath} end <<<<<<<<<<<<<\n"
         }
     }
 
@@ -84,7 +86,14 @@ class MyInject {
                         && !filePath.contains("BuildConfig.class")) {
 
                     // 获取 class name，形如 com.xiaobo.example.modifybytecode_javaassist.Test
-                    String className = filePath.replace(path + "/", "").replace('/', '.').replace(".class", "")
+                    String className
+                    if (path.contains("\\")) {
+                        // on windows
+                        className = filePath.replace(path + "\\", "").replace('\\', '.').replace(".class", "")
+                    } else {
+                        // on linux
+                        className = filePath.replace(path + "/", "").replace('/', '.').replace(".class", "")
+                    }
                     // println "============= processing class ${className} ============="
                     injectClass(className, path)
                 }

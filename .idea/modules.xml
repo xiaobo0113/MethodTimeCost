@@ -2,8 +2,14 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Android-MethodTimeCost.iml" filepath="$PROJECT_DIR$/.idea/modules/Android-MethodTimeCost.iml" group="MethodTimeCost" />
       <module fileurl="file://$PROJECT_DIR$/MethodTimeCost.iml" filepath="$PROJECT_DIR$/MethodTimeCost.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/lib-test1/MethodTimeCost-lib-test1.iml" filepath="$PROJECT_DIR$/.idea/modules/lib-test1/MethodTimeCost-lib-test1.iml" group="MethodTimeCost/lib-test1" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/sample/MethodTimeCost-sample.iml" filepath="$PROJECT_DIR$/.idea/modules/sample/MethodTimeCost-sample.iml" group="MethodTimeCost/sample" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/MethodTimeCost_buildSrc.iml" filepath="$PROJECT_DIR$/.idea/modules/MethodTimeCost_buildSrc.iml" group="MethodTimeCost/MethodTimeCost_buildSrc" />
       <module fileurl="file://$PROJECT_DIR$/buildSrc/buildSrc.iml" filepath="$PROJECT_DIR$/buildSrc/buildSrc.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/plugin/com.xiaobo.plugin-plugin.iml" filepath="$PROJECT_DIR$/.idea/modules/plugin/com.xiaobo.plugin-plugin.iml" group="MethodTimeCost/plugin" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runtime/com.xiaobo.plugin-runtime.iml" filepath="$PROJECT_DIR$/.idea/modules/runtime/com.xiaobo.plugin-runtime.iml" group="MethodTimeCost/runtime" />
       <module fileurl="file://$PROJECT_DIR$/lib-test1/lib-test1.iml" filepath="$PROJECT_DIR$/lib-test1/lib-test1.iml" />
       <module fileurl="file://$PROJECT_DIR$/plugin/plugin.iml" filepath="$PROJECT_DIR$/plugin/plugin.iml" />
       <module fileurl="file://$PROJECT_DIR$/runtime/runtime.iml" filepath="$PROJECT_DIR$/runtime/runtime.iml" />

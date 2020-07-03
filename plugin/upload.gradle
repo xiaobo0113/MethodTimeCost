@@ -2,7 +2,7 @@ apply plugin: 'maven'
 
 def GROUP_ID = LIB_GROUP
 def ARTIFACT_ID = LIB_ARTIFACT_PLUGIN
-def VERSION_NAME = LIB_VERSION
+def VERSION_NAME = LIB_VERSION_PLUGIN
 
 uploadArchives {
     repositories {

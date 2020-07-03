@@ -6,18 +6,21 @@ buildscript {
     ext.min_sdk_version = 14
     ext.target_sdk_version = 25
 
-    ext.method_time_cost_version = "1.1.1"
+    ext.method_time_cost_plugin_version = "1.1.2"
+    ext.method_time_cost_runtime_version = "1.1.1"
     ext.android_gradle_plugin_version = "3.1.4"
     ext.app_compat_version = "25.4.0"
     ext.constraint_layout_version = "1.1.2"
     repositories {
+        // maven { url "D:\\test"} // for local test only, add "local_url=D\:\\test" to local.properties also.
+        maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
         google()
         jcenter()
         mavenCentral()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:' + android_gradle_plugin_version
-        classpath 'com.xiaobo.plugin:method-time-cost:' + method_time_cost_version
+        classpath 'com.xiaobo.plugin:method-time-cost:' + method_time_cost_plugin_version
 
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
         classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:3.1.1'
@@ -27,6 +30,7 @@ buildscript {
 
 allprojects {
     repositories {
+        maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
         google()
         jcenter()
     }
