@@ -26,26 +26,36 @@ class MyInject {
         }
     }
 
+    static void removeClassPath(ClassPath classPath) {
+        pool.removeClassPath(classPath)
+    }
+
     /**
      * 添加 classPath 到 ClassPool 末尾
      * @param libPath
      */
-    static void appendClassPath(String libPath) {
+    static ClassPath appendClassPath(String libPath) {
+        ClassPath classPath = null
         if (new File(libPath).exists()) {
-            pool.appendClassPath(libPath)
+            classPath = pool.appendClassPath(libPath)
         }
+
+        return classPath
     }
 
     /**
      * 添加 classPath 到 ClassPool 开始
      * @param libPath
      */
-    static void insertClassPath(String libPath) {
+    static ClassPath insertClassPath(String libPath) {
+        ClassPath classPath = null
         if (new File(libPath).exists()) {
             println "\n>>>>>>>>>>>>> insertClassPath ${libPath} begin >>>>>>>>>>>>>"
-            pool.insertClassPath(libPath)
+            classPath = pool.insertClassPath(libPath)
             println "<<<<<<<<<<<<< insertClassPath ${libPath} end <<<<<<<<<<<<<\n"
         }
+
+        return classPath
     }
 
     /**

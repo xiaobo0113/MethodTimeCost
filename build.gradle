@@ -6,7 +6,7 @@ buildscript {
     ext.min_sdk_version = 14
     ext.target_sdk_version = 25
 
-    ext.method_time_cost_plugin_version = "1.1.2"
+    ext.method_time_cost_plugin_version = "1.1.3"
     ext.method_time_cost_runtime_version = "1.1.1"
     ext.android_gradle_plugin_version = "3.1.4"
     ext.app_compat_version = "25.4.0"

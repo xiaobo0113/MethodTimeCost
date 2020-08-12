@@ -4,6 +4,7 @@ import com.android.build.api.transform.*
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.internal.pipeline.TransformManager
+import javassist.ClassPath
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
@@ -90,12 +91,19 @@ class JavaAssistTransform extends Transform {
         // 问题是 lego.jar 是用 java_7 编译的，如果不使用 insertClassPath，JavaAssist 读取到的是本地的 android-sdk.jar 中的类，
         // 而本地的该 jar 包很有可能由 java_8 编译而成，所以 JavaAssist 认为该 class 是 java_8 编译的，
         // 在写回 jar 包时也采用 java_8 的方式写回，最终导致 dex 过程出错！
+        ArrayList<ClassPath> list = new ArrayList<ClassPath>()
         invocation.inputs.each {
             it.directoryInputs.each { DirectoryInput dir ->
-                MyInject.insertClassPath(dir.file.absolutePath)
+                def path = MyInject.insertClassPath(dir.file.absolutePath)
+                if (null != path) {
+                    list.add(path)
+                }
             }
             it.jarInputs.each { JarInput jar ->
-                MyInject.insertClassPath(jar.file.absolutePath)
+                def path = MyInject.insertClassPath(jar.file.absolutePath)
+                if (null != path) {
+                    list.add(path)
+                }
             }
         }
 
@@ -137,6 +145,10 @@ class JavaAssistTransform extends Transform {
                 }
             }
         }
+
+        list.forEach({
+            MyInject.removeClassPath(it)
+        })
     }
 
 //    private Project getAppProject() {
